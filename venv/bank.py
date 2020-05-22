@@ -29,7 +29,7 @@ def create_user():
     if len(account_holder) > 0 and len(address) > 2 and len(phone_number) > 0 and len(account_type) > 0 and len(
             email) > 3 and float(amount) > 0:
         try:
-            query = "INSERT INTO account_holder(account_holder, email, address, phone_number, account_number, account_type, amount) VALUES" \
+            query = "INSERT INTO account_holder(account_holder, email, address, phone_number, account_number, account_type, initial_amount) VALUES" \
                     "('{}','{}','{}','{}','{}','{}',{})".format(account_holder, email, address, phone_number,
                                                                 account_number, account_type, float(amount))
             mycursor.execute(query)
@@ -286,7 +286,7 @@ def account_details():
         print("Address : ", details[2])
         print("Phone number : ", details[3])
         print("Account type : ", details[5])
-        print("Account opening amount : ", float(details[6]))
+        print("Account opening amount (initial balance) : ", float(details[6]))
         print("Balance in your account is : ", balance[0])
     else:
         print("No details possibly wrong account number try again")
