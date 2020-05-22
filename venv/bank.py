@@ -60,10 +60,13 @@ def transfer():
         mycursor.execute("SELECT amount FROM account_balance WHERE account_number = %s", your_account_number)
     except:
         print("Error")
+    balance = mycursor.fetchone()
     if mycursor.fetchone() >= amount:
-        print("Transaction Successfull")
         try:
+            balance = balance - amount
             mycursor.execute("UPDATE account_balance SET balance = %s WHERE account_number = %s", balance, your_account_number)
+            mycursor.execute("UPDATE account_balance SET balance = balance + %s WHERE account_number = %s", amount, account_number)
+            print("Transaction Successful")
         except:
             print("Error")
     else:
