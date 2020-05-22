@@ -109,42 +109,84 @@ def withdrawal():
 # Function to tranfer money from one account to other account using account_numbers
 def transfer():
     your_account_number = input("Enter your account number : ")
-    mycursor.execute("SELECT account_number FROM account_holder")
-    account_numbers = mycursor.fetchall()
-    if account_number in account_numbers:
-        print(account_number)
+    mycursor.execute(
+        "SELECT account_number FROM account_holder WHERE account_number = '{}'".format(your_account_number))
+    account_number_ = mycursor.fetchone()
+    if account_number_:
+        print("Valid account number")
     else:
         print("Account number invalid try again")
         transfer()
     account_number = input("Enter Account number of the account in which you want to transfer money : ")
-    mycursor.execute("SELECT account_number FROM account_holder")
-    account_numbers = mycursor.fetchall()
-    if account_number in account_numbers:
-        print(account_number)
+    mycursor.execute(
+        "SELECT account_number FROM account_holder WHERE account_number = '{}'".format(your_account_number))
+    account_number_ = mycursor.fetchone()
+    if account_number_:
+        print("Valid account number")
     else:
         print("Account number invalid try again")
         transfer()
     amount = input("Enter amount you want to withdraw : ")
     amount = float(amount)
     try:
-        mycursor.execute("SELECT amount FROM account_balance WHERE account_number = %s", your_account_number)
-    except:
-        print("Error")
-    balance = mycursor.fetchone()
-    if mycursor.fetchone() >= amount:
-        try:
-            balance = balance - amount
-            mycursor.execute("UPDATE account_balance SET balance = %s WHERE account_number = %s", balance,
-                             your_account_number)
-            mydb.commit()
-            mycursor.execute("UPDATE account_balance SET balance = balance + %s WHERE account_number = %s", amount,
-                             account_number)
-            mydb.commit()
+        query = "SELECT balance FROM account_balance WHERE account_number = '{}'".format(your_account_number)
+        mycursor.execute(query)
+        balance = mycursor.fetchone()[0]
+        balance = float(balance)
+        print(balance)
+        if balance >= amount:
+            balance_new = balance - amount
+            try:
+                query = "UPDATE account_balance SET balance = {} WHERE account_number = '{}'".format(balance_new,
+                                                                                                     your_account_number)
+                mycursor.execute(query)
+                mydb.commit()
+            except:
+                print("Error 1")
+            try:
+                query = "UPDATE account_balance SET balance = balance + {} WHERE account_number = '{}'".format(
+                    amount,
+                    account_number)
+                mycursor.execute(query)
+                mydb.commit()
+            except:
+                print("Error 2")
+            new_balance = 0
+            try:
+                query = "SELECT balance FROM account_balance WHERE account_number = '{}'".format(account_number)
+                mycursor.execute(query)
+                new_balance = float(mycursor.fetchone()[0])
+            except:
+                print("Error 3")
+            try:
+                query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values" \
+                        "({}, 'withdraw', {}, {}, 'Money transferred {} to account_number {}')".format(
+                    your_account_number,
+                    balance,
+                    balance_new,
+                    amount,
+                    account_number)
+                mycursor.execute(query)
+                mydb.commit()
+            except:
+                print("Error 4")
+            try:
+                query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values" \
+                        "({}, 'deposit', {}, {}, 'Money recieived {} from  account_number {}')".format(
+                    your_account_number,
+                    new_balance - amount,
+                    new_balance,
+                    amount,
+                    account_number)
+                mycursor.execute(query)
+                mydb.commit()
+            except:
+                ("Error 5")
             print("Transaction Successful")
-        except:
-            print("Error")
-    else:
-        print("Insufficient funds in your bank account")
+        else:
+            print("Insufficient funds in your bank account")
+    except:
+        print("Error in getting balance")
 
 
 # Function to display all your transactions and money related events in your bank account
