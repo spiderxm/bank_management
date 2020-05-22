@@ -117,16 +117,38 @@ def users():
             print("Phone number : ", details[3])
             print("Account type : ", details[5])
             print("Account opening amount (initial balance) (indian rupees) : ", float(details[6]))
-            print("Current balance in account (indian rupees) : ",float(details[9]))
+            print("Current balance in account (indian rupees) : ", float(details[9]))
             details = mycursor.fetchone()
     except:
         print("Error retrieving records")
 
+
 def account_transactions():
     query = "SELECT * FROM account_holder INNER JOIN account_history ON account_history.account_number = account_holder.account_number"
     try:
+        mycursor.execute(query)
+        details = mycursor.fetchone()
+        while details:
+            print("*" * 250)
+            print("Account holder name : ", details[0])
+            print("Email id : ", details[1])
+            print("Address : ", details[2])
+            print("Phone number : ", details[3])
+            print("Account number : ", details[4])
+            print("Account type : ", details[5])
+            print("Payment information : ", details[9])
+            print("Amount before transaction : ", float(details[10]))
+            print("Amount after transaction : ",float(details[11]))
+            print("Transaction information : ", details[12])
+            print("Transaction date and time", details[13])
+            details = mycursor.fetchone()
 
-# total number of withdrawals
+    except:
+        print("Error in retreiving records")
+
+    # total number of withdrawals
+
+
 print("*" * 50)
 total_withdraw()
 # total number of deposits
@@ -156,7 +178,9 @@ total_executive()
 # details of users of bank account holder
 print("*" * 50)
 users()
-
+# account transactions in your bank account
+print("*" * 50)
+account_transactions()
 # closing the cursor
 mycursor.close()
 # closing the connection to the database
