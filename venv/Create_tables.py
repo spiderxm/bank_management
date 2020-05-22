@@ -2,9 +2,9 @@ import mysql.connector
 from datetime import datetime
 
 mydb = mysql.connector.connect(
-    host="database.ct1ikgzgdh96.us-east-1.rds.amazonaws.com",
+    host="bank.ct1ikgzgdh96.us-east-1.rds.amazonaws.com",
     user="admin",
-    passwd="mrigank52"
+    passwd="adminadmin"
 )
 mycursor = mydb.cursor()
 try:
@@ -97,10 +97,8 @@ try:
 except:
     print("Error inserting values into account_history")
 
+print("Commands successfull")
+
 mydb.commit()
 mycursor.close()
 mydb.close()
-
-
-
-#

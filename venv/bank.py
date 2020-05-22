@@ -1,13 +1,17 @@
 from random import randint
 import mysql.connector
 from datetime import datetime, date, time
-# mydb = mysql.connector.connect(
-#     host="database.ct1ikgzgdh96.us-east-1.rds.amazonaws.com",
-#     user="admin",
-#     passwd="mrigank52",
-#     dbname="BANK"
-# )
-# mycursor = mydb.cursor()
+
+mydb = mysql.connector.connect(
+    host="bank.ct1ikgzgdh96.us-east-1.rds.amazonaws.com",
+    user="admin",
+    passwd="adminadmin"
+)
+mycursor = mydb.cursor()
+try:
+    mycursor.execute("USE BANK")
+except:
+    print("Error connecting to the database")
 
 
 def create_user():
@@ -23,11 +27,12 @@ def create_user():
             email) > 6 and float(amount) > 0:
         print(account_holder, "your account number is ", account_number, "and keep it classified and safe")
         try:
-            values = (account_holder, email, address, phone_number, account_number, account_type, float(amount), account_creation_time)
+            values = (account_holder, email, address, phone_number, account_number, account_type, float(amount),
+                      account_creation_time)
             mycursor.execute("INSERT INTO account_holder VALUES (%s,%s,%s,%s,%s,%s, %s, %s)", values)
             print("Your Account has been successfully created")
             print("-----" * 2)
-        except :
+        except:
             print("There was some error in creating you account please try again later")
             print("-----" * 2)
         else:
@@ -59,23 +64,6 @@ def withdrawal():
     balance = balance - amount
     try:
         mycursor.execute("UPDATE account_balance SET balance = %s WHERE account_number = %s", balance, account_number)
-    except:
-        print("Error")
-
-
-def deposit():
-    account_number = input("Enter your account number : ")
-    mycursor.execute("SELECT account_number FROM account_holder")
-    account_numbers = mycursor.fetchall()
-    if account_number in account_numbers:
-        print(account_number)
-    else:
-        print("Account number invalid try again")
-        deposit()
-    amount = input("Enter amount you want to deposit : ")
-    try:
-        mycursor.execute("UPDATE account_balance SET balance = balance + %s WHERE account_number = %s", amount,
-                         account_number)
     except:
         print("Error")
 
@@ -135,7 +123,43 @@ def passbook():
         passbook()
 
 
-print(datetime.today())
+# Function to see the current balance for your account using account number
+def balance():
+    account_number = str(input("Enter your account number : "))
+    try:
+        query = "SELECT balance from account_balance where account_number = '{}'".format(account_number)
+        mycursor.execute(query)
+        balance = mycursor.fetchone()
+        print("Balance in your account is : ", balance[0])
+    except:
+        print("Error your account maybe not correct")
+        print("Please Try aggain")
+
+
+# Function to deposit money in your account
+def deposit():
+    account_number = input("Enter your account number : ")
+    mycursor.execute("SELECT account_number FROM account_holder where account_number = '{}'".format(account_number))
+    number = mycursor.fetchall()
+    if number:
+        print(account_number)
+        query = "SELECT balance from account_balance where account_number = '{}'".format(account_number)
+        mycursor.execute(query)
+        balance = mycursor.fetchone()
+        balance = float(balance[0])
+        amount = float(input("Enter amount you want to deposit : "))
+        print(amount + balance)
+        print(balance)
+    else:
+        print("Account number invalid try again")
+        # deposit()
+    # amount = input("Enter amount you want to deposit : ")
+    # try:
+    #     mycursor.execute("UPDATE account_balance SET balance = balance + %s WHERE account_number = %s", amount,
+    #                      account_number)
+    # except:
+    #     print("Error")
+
 
 def menu():
     print("*" * 20)
@@ -155,8 +179,13 @@ def menu():
     return choice
 
 
-print(" ----------W-E-L-C-O-M-E-----T-O------R-O-Y-A-L-----B-A-N-K-------")
-choice = menu()
-while True:
-    print(choice)
-    break
+# print(" ----------W-E-L-C-O-M-E-----T-O------R-O-Y-A-L-----B-A-N-K-------")
+# choice = menu()
+# while True:
+#     print(choice)
+#     break
+
+deposit()
+mydb.commit()
+mycursor.close()
+mydb.close()
