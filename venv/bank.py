@@ -32,7 +32,6 @@ def create_user():
             query = "INSERT INTO account_holder(account_holder, email, address, phone_number, account_number, account_type, amount) VALUES" \
                     "('{}','{}','{}','{}','{}','{}',{})".format(account_holder, email, address, phone_number,
                                                                 account_number, account_type, float(amount))
-            print(query)
             mycursor.execute(query)
             mydb.commit()
             try:
@@ -63,7 +62,7 @@ def create_user():
 
 # Function to withdraw money from your bank account using your account_number
 def withdrawal():
-    account_number = input("Enter your account number : ")
+    account_number = input("Enter your account number to withdraw money : ")
     try:
         mycursor.execute("SELECT account_number FROM account_holder where account_number = '{}'".format(account_number))
     except:
@@ -105,6 +104,7 @@ def withdrawal():
     else:
         print("Account number invalid or does not exist try again")
         withdrawal()
+
 
 # Function to tranfer money from one account to other account using account_numbers
 def transfer():
@@ -265,17 +265,36 @@ def menu():
     print("*" * 20)
     print("Choose 6 to transfer money")
     print("*" * 20)
+    print("Choose 7 to create Bank in our account")
     choice = int(input("Enter your choice"))
     return choice
 
 
-# print(" ----------W-E-L-C-O-M-E-----T-O------R-O-Y-A-L-----B-A-N-K-------")
-# choice = menu()
-# while True:
-#     print(choice)
-#     break
-create_user()
-# withdrawal()
+print(" ----------W-E-L-C-O-M-E-----T-O------R-O-Y-A-L-----B-A-N-K-------")
+option = True
+while option == True:
+    choice = menu()
+    print("You choosed option {}".format(choice))
+    if choice == 1:
+        account_details()
+    if choice == 2:
+        balance()
+    if choice == 3:
+        deposit()
+    if choice == 4:
+        withdrawal()
+    if choice == 5:
+        passbook()
+    if choice == 6:
+        transfer()
+    if choice == 7:
+        create_user()
+    option = input("Enter 1 to continue or any other key to exit: ")
+    if int(option) == 1:
+        option = True
+    else:
+        option = False
+
 # Finally committing any uncommitted changes
 mydb.commit()
 # Closing the cursor connection
