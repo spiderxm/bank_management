@@ -44,29 +44,44 @@ def create_user():
 # create_user()
 def withdrawal():
     account_number = input("Enter your account number : ")
-    mycursor.execute("SELECT account_number FROM account_holder")
-    account_numbers = mycursor.fetchall()
-    if account_number in account_numbers:
+    try:
+        mycursor.execute("SELECT account_number FROM account_holder where account_number = '{}'".format(account_number))
+    except:
+        print("Error in checking account number")
+    account = mycursor.fetchone()
+    if account:
         print(account_number)
+        amount = input("Enter amount you want to withdraw : ")
+        amount = float(amount)
+        try:
+            query = "SELECT balance FROM account_balance WHERE account_number = '{}'".format(account_number)
+            mycursor.execute(query)
+        except:
+            print("Error in retrieving previous balance")
+        balance = float(mycursor.fetchone()[0])
+        if balance >= amount:
+            print("Transaction successful take money from cashier")
+            balance_after_withdrawal = balance - amount
+            try:
+                query = "UPDATE account_balance SET balance = {} WHERE account_number = '{}'".format(balance_after_withdrawal,
+                                                                                                     account_number)
+                mycursor.execute(query)
+                query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values" \
+                        "({}, 'withdraw', {}, {}, 'Withdrawal made from the account')".format(account_number, balance,
+                                                                                              balance_after_withdrawal)
+                print("Balance in your account after transaction is : ", balance_after_withdrawal)
+                try:
+                    mycursor.execute(query)
+                except:
+                    print("Error submitting record of your withdrawal")
+            except:
+                print("Error in updating balance")
+        else:
+            print("Insufficient funds in your bank account")
+
     else:
-        print("Account number invalid try again")
+        print("Account number invalid or does not exist try again")
         withdrawal()
-    amount = input("Enter amount you want to withdraw : ")
-    amount = float(amount)
-    try:
-        mycursor.execute("SELECT amount FROM account_balance WHERE account_number = %s", account_number)
-    except:
-        print("Error")
-    balance = mycursor.fetchone()
-    if balance >= amount:
-        print("Transaction successful take money from cashier")
-    else:
-        print("Insufficient funds in your bank account")
-    balance = balance - amount
-    try:
-        mycursor.execute("UPDATE account_balance SET balance = %s WHERE account_number = %s", balance, account_number)
-    except:
-        print("Error")
 
 
 def transfer():
@@ -113,12 +128,16 @@ def passbook():
     mycursor.execute("SELECT account_number FROM account_holder")
     account_numbers = mycursor.fetchall()
     if account_numbers:
-        print(account_number)
+        print("*****************")
         query = "SELECT * FROM account_history WHERE account_number = '{}'".format(account_number)
         mycursor.execute(query)
         print("----------")
-        for transaction in mycursor:
-            print(transaction)
+        for number, transaction in enumerate(mycursor):
+            print("Transaction type :", transaction[1])
+            print("Balance before transaction : ", float(transaction[2]))
+            print("Balance after transaction :", float(transaction[3]))
+            print("Date and time of transaction :", transaction[5])
+            print("Message : ", transaction[4])
             print("*****************")
         print("----------")
         print("Thanks for selecting our bank you are a valuable customer")
@@ -181,12 +200,24 @@ def account_details():
     account_number = input("Enter your account number to show your details : ")
     try:
         query = "SELECT * FROM account_holder where account_number = '{}'".format(account_number)
+        mycursor.execute(query)
+        details = mycursor.fetchone()
+        try:
+            query = "SELECT balance from account_balance where account_number = '{}'".format(account_number)
+            mycursor.execute(query)
+            balance = mycursor.fetchone()
+        except:
+            print("Error getting your balance")
     except:
         print("Error")
-    mycursor.execute(query)
-    details = mycursor.fetchone()
-    if detials:
-        print(details)
+    if details:
+        print("Account holder name : ", details[0])
+        print("Email id : ", details[1])
+        print("Address : ", details[2])
+        print("Phone number : ", details[3])
+        print("Account type : ", details[5])
+        print("Account opening amount : ", float(details[6]))
+        print("Balance in your account is : ", balance[0])
     else:
         print("No details possibly wrong account number try again")
         account_details()
@@ -216,7 +247,7 @@ def menu():
 #     print(choice)
 #     break
 
-deposit()
+withdrawal()
 mydb.commit()
 mycursor.close()
 mydb.close()
