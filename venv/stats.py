@@ -50,18 +50,62 @@ def total_transactions():
         print("Total Number of transactions made till date : ", transaction_number[0])
     except:
         print("Error")
+
+
 def total_deposits():
     query = "SELECT COUNT(*) FROM account_history where payment_type = 'deposit'"
     try:
         mycursor.execute(query)
-        transaction_number = mycursor.fetchone()
-        print("Total Number of deposits made till date : ", transaction_number[0])
+        transaction_number_deposit = mycursor.fetchone()
+        print("Total Number of deposits made till date : ", transaction_number_deposit[0])
     except:
         print("Error")
+
+def total_withdraw():
+    query = "SELECT COUNT(*) FROM account_history where payment_type = 'withdraw'"
+    try:
+        mycursor.execute(query)
+        transaction_number_withdraw = mycursor.fetchone()
+        print("Total Number of deposits made till date : ", transaction_number_withdraw[0])
+    except:
+        print("Error")
+def total_elite():
+    query = "SELECT COUNT(*) FROM account_holder where account_type = 'elite'"
+    try:
+        mycursor.execute(query)
+        elite = mycursor.fetchone()
+        print("Total Number of elite accounts : ", elite[0])
+    except:
+        print("Error")
+def total_executive():
+    query = "SELECT COUNT(*) FROM account_holder where account_type = 'executive'"
+    try:
+        mycursor.execute(query)
+        executive = mycursor.fetchone()
+        print("Total Number of executive accounts : ", executive[0])
+    except:
+        print("Error")
+def total_lite():
+    query = "SELECT COUNT(*) FROM account_holder where account_type = 'lite'"
+    try:
+        mycursor.execute(query)
+        executive = mycursor.fetchone()
+        print("Total Number of lite accounts : ", executive[0])
+    except:
+        print("Error")
+
+
+total_withdraw()
 total_deposits()
+total_transactions()
 average_money()
 money_in_bank()
 no_of_users()
-total_transactions()
+total_lite()
+total_elite()
+total_executive()
+
+
+
 mycursor.close()
 mydb.close()
