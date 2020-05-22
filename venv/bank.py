@@ -136,3 +136,27 @@ def passbook():
 
 
 print(datetime.today())
+
+def menu():
+    print("*" * 20)
+    print("Choose 1 to select show your account details")
+    print("*" * 20)
+    print("Choose 2 to show your balance")
+    print("*" * 20)
+    print("Choose 3 to deposit money")
+    print("*" * 20)
+    print("Choose 4 to withdraw money")
+    print("*" * 20)
+    print("Choose 5 to show your account history (passbook)")
+    print("*" * 20)
+    print("Choose 6 to transfer money")
+    print("*" * 20)
+    choice = int(input("Enter your choice"))
+    return choice
+
+
+print(" ----------W-E-L-C-O-M-E-----T-O------R-O-Y-A-L-----B-A-N-K-------")
+choice = menu()
+while True:
+    print(choice)
+    break

@@ -26,7 +26,7 @@ try:
 except:
     print("Error deleting account_balance table")
 try:
-        mycursor.execute("DROP TABLE IF EXISTS account_history")
+    mycursor.execute("DROP TABLE IF EXISTS account_history")
 except:
     print("Error deleting account_history table")
 try:
@@ -63,10 +63,11 @@ except:
     print("Error creating balance_transfer table")
 try:
     mycursor.execute("CREATE TABLE if NOT EXISTS account_history("
-                     "account_number varchar(20) NOT NULL , "
+                     "account_number varchar(20) NOT NULL, "
                      "payment_type varchar(10) NOT NULL, "
                      "balance_before decimal(30,5) NOT NULL, "
                      "balance_afterwards decimal(30,5) NOT NULL, "
+                     "comments varchar(255), "
                      "transaction_time TIMESTAMP default CURRENT_TIMESTAMP )")
 except:
     print("Error creating account_history table")
@@ -86,12 +87,20 @@ try:
                      "('11458183925071153386', 10000)")
 except:
     print("Error inserting values into account_balance table")
-try:
-    print("INSERT INTO account_history ")
-except:
-    print("Error")
 
+try:
+    mycursor.execute(
+        "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values "
+        "('87151766626366737611', 'deposit', 0, 100000, 'Deposit made on account opening'),"
+        "('92120805165080483546', 'deposit', 0, 990000, 'Deposit made on account opening'),"
+        "('11458183925071153386', 'deposit', 0, 10000, 'Deposit made on account opening')")
+except:
+    print("Error inserting values into account_history")
 
 mydb.commit()
 mycursor.close()
 mydb.close()
+
+
+
+#
