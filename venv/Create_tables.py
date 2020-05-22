@@ -41,7 +41,7 @@ try:
                      "phone_number varchar(20)  NOT NULL , "
                      "account_number varchar(20) primary key  NOT NULL , "
                      "account_type varchar(20)  NOT NULL , "
-                     "amount decimal(30,5)  NOT NULL ,"
+                     "initial_amount decimal(30,5)  NOT NULL ,"
                      "account_creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP )")
 except:
 
@@ -73,10 +73,10 @@ except:
     print("Error creating account_history table")
 try:
     mycursor.execute(
-        "INSERT INTO account_holder(account_holder, email, address, phone_number, account_number, account_type, amount) VALUES "
+        "INSERT INTO account_holder(account_holder, email, address, phone_number, account_number, account_type, initial_amount) VALUES "
         "('mrigank anand', 'mrigank@nith.ac.in', 'kailash boys hostel nith', '9999888877', '87151766626366737611', 'elite', 100000), "
-        "('aman chauhan', 'aman-d-1-n-only@nith.ac.in', 'kailash boys hostel nith', '9876543211', '92120805165080483546',' lite', 990000), "
-        "('shekhar motiyan', 'shekhar@nith.ac.in', 'kailash boys hostel nith', '9999999999', '11458183925071153386', 'executive', 10000)"
+        "('abc', 'abc@nith.ac.in', 'kailash boys hostel nith', '9876543211', '92120805165080483546','lite', 990000), "
+        "('xyz', 'xyz@nith.ac.in', 'kailash boys hostel nith', '9999999999', '11458183925071153386', 'executive', 10000)"
     )
 except:
     print("Error inserting values into account_holder table")
