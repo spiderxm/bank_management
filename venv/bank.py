@@ -29,7 +29,8 @@ def create_user():
         try:
             values = (account_holder, email, address, phone_number, account_number, account_type, float(amount),
                       account_creation_time)
-            mycursor.execute("INSERT INTO account_holder VALUES (%s,%s,%s,%s,%s,%s, %s, %s)", values)
+            mycursor.execute("INSERT INTO account_holder VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                             values)
             print("Your Account has been successfully created")
             print("-----" * 2)
         except:
@@ -106,16 +107,19 @@ def transfer():
         print("Insufficient funds in your bank account")
 
 
+# Function to display all your transactions and money related events in your bank account
 def passbook():
-    account_number = input("Enter your account number : ")
+    account_number = input("Enter your account number to get all the transaction details of your account : ")
     mycursor.execute("SELECT account_number FROM account_holder")
     account_numbers = mycursor.fetchall()
-    if account_number in account_numbers:
+    if account_numbers:
         print(account_number)
-        mycursor.execute("SELECT * FROM transactions WHERE account_number = %s", account_number)
+        query = "SELECT * FROM account_history WHERE account_number = '{}'".format(account_number)
+        mycursor.execute(query)
         print("----------")
         for transaction in mycursor:
             print(transaction)
+            print("*****************")
         print("----------")
         print("Thanks for selecting our bank you are a valuable customer")
     else:
@@ -149,16 +153,43 @@ def deposit():
         balance = float(balance[0])
         amount = float(input("Enter amount you want to deposit : "))
         print(amount + balance)
+        final_amount = amount + balance
         print(balance)
+        query = "UPDATE account_balance SET balance = {} where account_number = '{}'".format(final_amount,
+                                                                                             account_number)
+        print(query)
+        try:
+            mycursor.execute(query)
+            print("Amount added successfully")
+            query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values" \
+                    "({}, 'deposit', {}, {}, 'Deposit made in account')".format(account_number, balance, final_amount)
+            print(query)
+            try:
+                mycursor.execute(query)
+                print("Deposit record successfully added")
+            except:
+                print("Error updating your records")
+        except:
+            print("Error updating amount in your account")
+
     else:
         print("Account number invalid try again")
-        # deposit()
-    # amount = input("Enter amount you want to deposit : ")
-    # try:
-    #     mycursor.execute("UPDATE account_balance SET balance = balance + %s WHERE account_number = %s", amount,
-    #                      account_number)
-    # except:
-    #     print("Error")
+
+
+# Function to show your details using your account number
+def account_details():
+    account_number = input("Enter your account number to show your details : ")
+    try:
+        query = "SELECT * FROM account_holder where account_number = '{}'".format(account_number)
+    except:
+        print("Error")
+    mycursor.execute(query)
+    details = mycursor.fetchone()
+    if detials:
+        print(details)
+    else:
+        print("No details possibly wrong account number try again")
+        account_details()
 
 
 def menu():
