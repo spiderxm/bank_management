@@ -1,12 +1,15 @@
+# Importing random module to create account number
 from random import randint
+# Importing mysql.connector to execute commands
 import mysql.connector
-from datetime import datetime, date, time
 
+# Connecting to MySql server created using Amazon Web Services
 mydb = mysql.connector.connect(
     host="bank.ct1ikgzgdh96.us-east-1.rds.amazonaws.com",
     user="admin",
     passwd="adminadmin"
 )
+# Creating a cursor to run and execute commands
 mycursor = mydb.cursor()
 try:
     mycursor.execute("USE BANK")
@@ -14,34 +17,51 @@ except:
     print("Error connecting to the database")
 
 
+# Function to create a Bank account holder
 def create_user():
     account_holder = input("Enter your name : ")
-    address = input("Enter your address : ")
     email = input("Enter your email : ")
+    address = input("Enter your address : ")
     phone_number = input("Enter your phone number :")
     account_type = input("Choose account type between lite, elite, executive : ")
     amount = input("Initial deposit in your account")
-    account_creation_time = datetime.today()
     account_number = str(randint(100 ** 9, (100 ** 10) - 1))
-    if len(account_holder) > 3 and len(address) > 9 and len(phone_number) > 7 and len(account_type) > 3 and len(
-            email) > 6 and float(amount) > 0:
-        print(account_holder, "your account number is ", account_number, "and keep it classified and safe")
+    if len(account_holder) > 0 and len(address) > 2 and len(phone_number) > 0 and len(account_type) > 0 and len(
+            email) > 3 and float(amount) > 0:
         try:
-            values = (account_holder, email, address, phone_number, account_number, account_type, float(amount),
-                      account_creation_time)
-            mycursor.execute("INSERT INTO account_holder VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-                             values)
-            print("Your Account has been successfully created")
-            print("-----" * 2)
+            query = "INSERT INTO account_holder(account_holder, email, address, phone_number, account_number, account_type, amount) VALUES" \
+                    "('{}','{}','{}','{}','{}','{}',{})".format(account_holder, email, address, phone_number,
+                                                                account_number, account_type, float(amount))
+            print(query)
+            mycursor.execute(query)
+            mydb.commit()
+            try:
+                query = "INSERT INTO account_balance(account_number, balance) VALUES " \
+                        "('{}', {})".format(account_number, amount)
+                mycursor.execute(query)
+                mydb.commit()
+                try:
+                    query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values " \
+                            "('{}', 'deposit', 0, {}, 'Deposit made on account opening')".format(account_number, amount)
+                    mycursor.execute(query)
+                    mydb.commit()
+                    print("Your Account has been successfully created")
+                    print(account_holder, "your account number is ", account_number, "and keep it classified and safe")
+                    print("-----" * 2)
+                except:
+                    print("Error updating deposit for your account in the ledger")
+            except:
+                print("Error updating balance in your new account")
+
         except:
             print("There was some error in creating you account please try again later")
             print("-----" * 2)
-        else:
-            print("Please fill the fields correctly")
-            create_user()
+    else:
+        print("Please fill the fields correctly")
+        create_user()
 
 
-# create_user()
+# Function to withdraw money from your bank account using your account_number
 def withdrawal():
     account_number = input("Enter your account number : ")
     try:
@@ -63,8 +83,10 @@ def withdrawal():
             print("Transaction successful take money from cashier")
             balance_after_withdrawal = balance - amount
             try:
-                query = "UPDATE account_balance SET balance = {} WHERE account_number = '{}'".format(balance_after_withdrawal,
-                                                                                                     account_number)
+                query = "UPDATE account_balance SET balance = {} WHERE account_number = '{}'".format(
+                    balance_after_withdrawal,
+                    account_number)
+                mydb.commit()
                 mycursor.execute(query)
                 query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values" \
                         "({}, 'withdraw', {}, {}, 'Withdrawal made from the account')".format(account_number, balance,
@@ -72,6 +94,7 @@ def withdrawal():
                 print("Balance in your account after transaction is : ", balance_after_withdrawal)
                 try:
                     mycursor.execute(query)
+                    mydb.commit()
                 except:
                     print("Error submitting record of your withdrawal")
             except:
@@ -83,7 +106,7 @@ def withdrawal():
         print("Account number invalid or does not exist try again")
         withdrawal()
 
-
+# Function to tranfer money from one account to other account using account_numbers
 def transfer():
     your_account_number = input("Enter your account number : ")
     mycursor.execute("SELECT account_number FROM account_holder")
@@ -113,8 +136,10 @@ def transfer():
             balance = balance - amount
             mycursor.execute("UPDATE account_balance SET balance = %s WHERE account_number = %s", balance,
                              your_account_number)
+            mydb.commit()
             mycursor.execute("UPDATE account_balance SET balance = balance + %s WHERE account_number = %s", amount,
                              account_number)
+            mydb.commit()
             print("Transaction Successful")
         except:
             print("Error")
@@ -176,15 +201,18 @@ def deposit():
         print(balance)
         query = "UPDATE account_balance SET balance = {} where account_number = '{}'".format(final_amount,
                                                                                              account_number)
+
         print(query)
         try:
             mycursor.execute(query)
+            mydb.commit()
             print("Amount added successfully")
             query = "INSERT INTO account_history(account_number, payment_type, balance_before, balance_afterwards, comments) values" \
                     "({}, 'deposit', {}, {}, 'Deposit made in account')".format(account_number, balance, final_amount)
             print(query)
             try:
                 mycursor.execute(query)
+                mydb.commit()
                 print("Deposit record successfully added")
             except:
                 print("Error updating your records")
@@ -246,8 +274,11 @@ def menu():
 # while True:
 #     print(choice)
 #     break
-
-withdrawal()
+create_user()
+# withdrawal()
+# Finally committing any uncommitted changes
 mydb.commit()
+# Closing the cursor connection
 mycursor.close()
+# Closing the datbase connection
 mydb.close()
